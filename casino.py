@@ -1,10 +1,11 @@
 from game import Game
 from player import Player
 from randomplayer import RandomPlayer
+from student import StudentPlayer
 
 if __name__ == '__main__':
 
-    players = [Player("Human",100)]
+    players = [StudentPlayer("Human",100)]
 
     for i in range(100):
         print players
