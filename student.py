@@ -18,7 +18,16 @@ class StudentPlayer(Player):
         super(StudentPlayer, self).__init__(name, money)
 
     def play(self, dealer, players):
+        #Possible commands of returning: h(hit) s(stand) d(double down)
+        cmd = ["h", "s", "d"]
+
+        #In case players hand = 11, ALLWAYS hit, because nothing to lose
+        #if card.value(dealer.hand) <=11:
+         #   return "h"
+
+
         return "s"
+
 
     def bet(self, dealer, players):
         return 1 
