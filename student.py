@@ -49,8 +49,9 @@ class StudentPlayer(Player):
         op = ""
         if(player_value>16):
             op = "s"
-
-        elif(dealer_prob_bust >= 0.7):
+        elif(dealer_prob_bust >= 0.80):
+            op = "s"
+        elif(dealer_prob_bust > 0.7 and dealer_prob_bust < 0.8):
             if(player_prob_bust >= 0.7):
                 cmd = ["h", "s"]
                 op = cmd[random.randint(0,1)]
