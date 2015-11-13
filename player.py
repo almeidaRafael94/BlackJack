@@ -24,6 +24,26 @@ class Player(object):
         self.table = 0
         self.pocket += prize
 
+        # apenas para criacao do ficheiro de dados
+        #-----------------------------------------
+        fileobj = open("values.txt","r")
+        info = fileobj.read()
+        fileobj.close()
+        info += "\nLast Pocket: " + str(self.pocket - prize) + " Prize: " + str(prize) + " New pocker: " + str(self.pocket) + "\n"
+        info += "----------------------------END GAME------------------------------"
+        fileobj = open("values.txt","w")
+        fileobj.write(str(info) + '\n')
+        fileobj.close()
+
+        fileobj = open("gains.txt","r")
+        gains = fileobj.read()
+        fileobj.close()
+        gains += '{}'.format(prize) + "\n"
+        fileobj = open("gains.txt","w")
+        fileobj.write(gains)
+        fileobj.close()
+        #------------------------------------------
+
 # re-implement all the next methods
     def debug_state(self, dealer, players):
         print "{:10s}: {:32s} = {}".format("Dealer", dealer.hand, card.value(dealer.hand))

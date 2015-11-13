@@ -13,7 +13,6 @@ import card
 import random
 from player import Player
 from collections import Counter
-from datetime import datetime
 
 class StudentPlayer(Player):
     def __init__(self, name="Student", money=0):
