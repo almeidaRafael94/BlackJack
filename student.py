@@ -29,15 +29,21 @@ class StudentPlayer(Player):
         print "Player_Hand: [%s]" % player.hand
         print "Player_value: %d" % player_value
 
-        print "++++++++++++PLAYER[not_bust , bust]+++++++++++++++++"
-        print player_probability(self,player)
-        print "++++++++++++DEALER[not_bust , bust]+++++++++++++++++"
-        print dealer_probability(self,dealer)
+        player_probs = player_probability(self,player)
+        player_prob_bust =player_probs[0]
+        player_prob_not_bust = 1-player_prob_bust
+        player_prob_better_hand = player_probs[1]
+
+        dealer_probs = dealer_probability(self,dealer)
+        dealer_prob_bust = dealer_probs[0]
+        dealer_prob_not_bust = 1-dealer_prob_bust
+        dealer_prob_better_hand = dealer_probs[1]
+
+        print "++++++++++++PLAYER[Bust , Better_hand]+++++++++++++++++"
+        print player_probs
+        print "++++++++++++DEALER[Bust , Better_hand]+++++++++++++++++"
+        print dealer_probs
         print "++++++++++++++++++++++++++++++++++++++++++++++++++++"
-        player_prob_bust = player_probability(self,player)[1]
-        player_prob_not_bust = player_probability(self,player)[0]
-        dealer_prob_bust = dealer_probability(self,dealer)[1]
-        dealer_prob_not_bust = dealer_probability(self,dealer)[0]
 
         strtmp = readFile(self)
         strtmp += "\nPlayer_Bust "  + str(player_prob_bust)
@@ -78,15 +84,16 @@ class StudentPlayer(Player):
                 cmd = ["h","s"]
                 op = cmd[random.randint(0,1)]
 
+
+
         strtmp += "\nOP -> " + op
         writeVal_file(self,strtmp)
         return op
 
-
-
     def bet(self, dealer, players):
         cmd = [1]
-        return cmd[random.randint(0,0)]
+        #return cmd[random.randint(0,0)]
+        return 3
 
 def player_probability(self,player):                                                # return [prob_not_bust,prob_bust]
     value_cards = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10]                       # cards value
@@ -120,7 +127,12 @@ def player_probability(self,player):                                            
     prob_player_bust = 1- (1.0*prob_player_not_bust)                                 # probabilidade de o player fazer bust
 
 
-    return [prob_player_not_bust,prob_player_bust]
+    if(player_hand_Ace):                                                             # calcular probabilidade de melhorar mao em caso de "h"
+        prob_better_hand = 1.0*(21 - player_value)/13
+    else:
+        prob_better_hand = prob_player_not_bust
+
+    return [prob_player_bust,prob_better_hand]
 
 def dealer_probability(self,dealer):
     value_cards = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10]
@@ -155,7 +167,12 @@ def dealer_probability(self,dealer):
     prob_dealer_not_bust = 1.0*num_benefit_cards_dealer/13                           # probabilidade de dealer melhorar a sua mao
     prob_dealer_bust = 1- (1.0*prob_dealer_not_bust)
 
-    return [prob_dealer_not_bust,prob_dealer_bust]
+    if(dealer_hand_Ace):                                                             # calcular probabilidade de melhorar mao
+        prob_better_hand = (21 - dealer_value)/13
+    else:
+        prob_better_hand = prob_dealer_not_bust
+
+    return [prob_dealer_bust,prob_better_hand]
 
 def agressive_power(self):
 
