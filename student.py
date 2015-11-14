@@ -18,11 +18,13 @@ class StudentPlayer(Player):
     def __init__(self, name="Student", money=0):
         super(StudentPlayer, self).__init__(name, money)
 
+
     def play(self, dealer, players):
 
         player = [x for x in players if x.player.name == self.name][0]                   # player = my boot (name = Student)
         dealer_value = card.value(dealer.hand) if card.value(dealer.hand) <= 21 else 0   # value cards dealer
         player_value = card.value(player.hand) if card.value(player.hand) <= 21 else 0   # value cards my boot
+
 
         print "Dealer_Hand: [%s]" % str(dealer.hand)
         print "Dealer_value: %d" % dealer_value
@@ -38,10 +40,11 @@ class StudentPlayer(Player):
         dealer_prob_bust = dealer_probs[0]
         dealer_prob_not_bust = 1-dealer_prob_bust
         dealer_prob_better_hand = dealer_probs[1]
+        dealer_prob_hit = dealer_probs[2]
 
         print "++++++++++++PLAYER[Bust , Better_hand]+++++++++++++++++"
         print player_probs
-        print "++++++++++++DEALER[Bust , Better_hand]+++++++++++++++++"
+        print "++++++++++++DEALER[Bust , Better_hand, Prob_hit]+++++++++++++++++"
         print dealer_probs
         print "++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
@@ -92,8 +95,7 @@ class StudentPlayer(Player):
 
     def bet(self, dealer, players):
         cmd = [1]
-        #return cmd[random.randint(0,0)]
-        return 3
+        return cmd[random.randint(0,0)]
 
 def player_probability(self,player):                                                # return [prob_not_bust,prob_bust]
     value_cards = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10]                       # cards value
@@ -162,21 +164,40 @@ def dealer_probability(self,dealer):
         dif_dealer = 21 - dealer_value;
 
     num_benefit_cards_dealer = len([x for x in value_cards if dif_dealer >= x])      # numer de cartas beneficas para o dealer
-    #print num_benefit_cards_dealer
+    print num_benefit_cards_dealer
 
     prob_dealer_not_bust = 1.0*num_benefit_cards_dealer/13                           # probabilidade de dealer melhorar a sua mao
     prob_dealer_bust = 1- (1.0*prob_dealer_not_bust)
 
     if(dealer_hand_Ace):                                                             # calcular probabilidade de melhorar mao
-        prob_better_hand = (21 - dealer_value)/13
+        prob_better_hand =1.0* (21 - dealer_value)/13
     else:
         prob_better_hand = prob_dealer_not_bust
 
-    return [prob_dealer_bust,prob_better_hand]
+
+    count = 0
+    for c in value_cards:
+        if(c >= (17 - dealer_value)):
+            count += 1
+
+    if(dealer_value < 17):                                                          # probabilidade do dealer fazer hit na proxima jogada
+        if(dealer_value <= 10):
+            prob_hit = 1.0*(count+1)/13                                             # +1 porque o Ace é favorável neste caso
+        else:
+            prob_hit = 1.0*(count)/13
+    else:
+        prob_hit = 0
+
+    return [prob_dealer_bust,prob_better_hand,prob_hit]
 
 def agressive_power(self):
 
     return 0
+
+def save_dealer_move(self,dealer_hand):
+    return 0
+
+
 
 def writeVal_file(self,val):                                                         # guarda info de jogadas no ficheiro
     fileobj = open("values.txt","w")
