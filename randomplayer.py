@@ -18,7 +18,7 @@ class RandomPlayer(Player):
             dealer - state
             players - list of players state
         """
-        cmd = ["h", "s"]
+        cmd = ["h", "s", "s"]
         return cmd[random.randint(0,1)]
 
     def bet(self, dealer, players):

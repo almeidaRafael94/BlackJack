@@ -47,6 +47,7 @@ class StudentPlayer(Player):
         #print dealer_probs
         #print "++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
+        '''
         strtmp = readFile(self)
         strtmp += "\nPlayer_value " + str(player_value)
         strtmp += "\nPlayer_Bust "  + str(player_prob_bust)
@@ -57,6 +58,15 @@ class StudentPlayer(Player):
         strtmp += "\nDealer_NOT_BUST " + str(dealer_prob_not_bust)
         strtmp += "\nDealer_better_hand " + str(dealer_prob_better_hand)
         strtmp += "\nDealer_prob_hit " + str(dealer_prob_hit)
+        '''
+        fileobj = open("last_dealer_value.txt", "r")
+        last_dealer_value = fileobj.read()
+        fileobj.close()
+
+        fileobj = open("last_dealer_value.txt", "w")
+        fileobj.write(str(dealer_value) + '\n')
+        fileobj.close()
+
 
         # Valores de probabilidades disponiveis:
 
@@ -73,13 +83,33 @@ class StudentPlayer(Player):
 
         op = ""
 
+        if(int(dealer_value) == int(last_dealer_value)):                              # dealer fez stand
+            #strtmp += "\nCondition: Dealer fez stand, já tem 17 pontos"
+            if(player_value <= 17):
+                op = "h"
+            else:
+                op = "s"
 
-
-        if(player_value>16):
+        elif(dealer_value > 17):
             op = "s"
+            #strtmp += "\nCondition: dealer_value > 17"
+        elif(player_prob_better_hand >= 0.65):
+            op = "h"
+            #strtmp += "\nCondition: prob_Player_BH >= 0.65"
+        elif(player_value>16):
+            op = "s"
+            #strtmp += "\nCondition: Player_value > 16"
         elif(dealer_prob_bust >= 0.80):
             op = "s"
+            #strtmp += "\nCondition: Dealer_prob_BUST >= 0.8"
+        elif(player_value == 16):
+            #strtmp += "\nCondition: Player_value = 16"
+            if(dealer_value > 14 and dealer_prob_bust <= 0.5):
+                op = "h"
+            else:
+                op = "s"
         elif(dealer_prob_bust > 0.7 and dealer_prob_bust < 0.8):
+            #strtmp += "\nCondition: Dealer_prob_bust ]0.7 , 0.8[ "
             if(player_prob_bust >= 0.7):
                 cmd = ["h", "s"]
                 op = cmd[random.randint(0,1)]
@@ -89,27 +119,23 @@ class StudentPlayer(Player):
                 cmd = ["h","h", "h", "s"]
                 op = cmd[random.randint(0,3)]
 
-        elif(dealer_prob_bust > 0.4 and dealer_prob_bust < 0.7):
-            if(player_prob_bust >= 0.6):
-                cmd = ["h", "s", "s", "s"]
-                op = cmd[random.randint(0,3)]
-            elif(player_prob_bust <= 0.2):
+        elif(dealer_prob_bust > 0.5 and dealer_prob_bust <= 0.7):
+            #strtmp += "\nCondition: Dealer_prob_bust ]0.5 , 0.7] "
+            if(player_prob_better_hand >= 0.6):
+                op = "h"
+            elif(dealer_prob_better_hand >= 0.6):
                 op = "h"
             else:
-                cmd = ["h","s"]
-                op = cmd[random.randint(0,1)]
-        else:
-            if(player_prob_bust >= 0.6):
                 op = "s"
-            elif(player_prob_bust <= 0.4):
-                op = "h"
+        else:
+            #strtmp += "\nCondition: Dealer_prob_bust <= 0.4 "
+            if(player_prob_better_hand <= 0.40):
+                op = "s"
             else:
-                cmd = ["h","s"]
-                op = cmd[random.randint(0,1)]
-        
+                op = "h"
 
-        strtmp += "\nOP -> " + op
-        writeVal_file(self,strtmp)
+        #strtmp += "\nOP -> " + op
+        #writeVal_file(self,strtmp)
         return op
 
     def bet(self, dealer, players):
@@ -136,12 +162,12 @@ def player_probability(self, player):  # return [prob_not_bust,prob_bust]
             player_totalValue += c.value() + 10
         else:
             player_totalValue += c.value()
-            # CASO PLAYER FACA HIT
-    dif_player = 0  # diferenca entre blackjack e o valor da mao do dealer
-    if (player_hand_Ace):  # Caso a mao do dealer contenha 1 ou mais Ace's
+                                                                    # CASO PLAYER FACA HIT
+    dif_player = 0                                                  # diferenca entre blackjack e o valor da mao do dealer
+    if (player_hand_Ace):                                           # Caso a mao do dealer contenha 1 ou mais Ace's
         if (player_value != player_totalValue):
             dif_player = 21 - (
-            player_totalValue - (player_hand_nAce * 10))  # teremos que subtratir o o numero de Ace * 10
+            player_totalValue - (player_hand_nAce * 10))            # teremos que subtratir o o numero de Ace * 10
     else:
         dif_player = 21 - player_value;
 
@@ -170,6 +196,9 @@ def dealer_probability(self, dealer):
         if c.is_ace():
             dealer_hand_nAce += 1;
 
+    #print "\ndealer_hand_Ace : %s" % str(dealer_hand_Ace)
+    #print "\ndealer_hand_nAce: %s" % str(dealer_hand_nAce)
+
     dealer_totalValue = 0  # valor total da mao do player
 
     for c in dealer.hand:
@@ -178,17 +207,24 @@ def dealer_probability(self, dealer):
         else:
             dealer_totalValue += c.value()
 
-    dif_dealer = 0  # diferenca entre blackjack e o valor da mao do dealer
-    if (dealer_hand_Ace):  # Caso a mao do dealer contenha 1 ou mais Ace's
+    #print "\ndealer_totalValue: %d" % dealer_totalValue
+
+    dif_dealer = 0                                          # diferenca entre blackjack e o valor da mao do dealer
+    if (dealer_hand_Ace):
+        #print "\nMao do delaer contem ACE"                                                        # Caso a mao do dealer contenha 1 ou mais Ace's
         if (dealer_value != dealer_totalValue):
             dif_dealer = 21 - (
-            dealer_totalValue - (dealer_hand_nAce * 10))  # teremos que subtratir o o numero de Ace * 10
+            dealer_totalValue - (dealer_hand_nAce * 10))    # teremos que subtratir o o numero de Ace * 10
     else:
         dif_dealer = 21 - dealer_value;
 
+    #print "\ndif_dealer: %d" % dif_dealer
+
     num_benefit_cards_dealer = len(
-        [x for x in value_cards if dif_dealer >= x])  # numer de cartas beneficas para o dealer
+        [x for x in value_cards if dif_dealer >= x])        # numer de cartas beneficas para o dealer
     #print num_benefit_cards_dealer
+
+    #print "\nnum_benefit_cards_dealer: %d" % num_benefit_cards_dealer
 
     prob_dealer_not_bust = 1.0 * num_benefit_cards_dealer / 13  # probabilidade de dealer melhorar a sua mao
     prob_dealer_bust = 1 - (1.0 * prob_dealer_not_bust)
@@ -200,11 +236,13 @@ def dealer_probability(self, dealer):
 
     count = 0
     for c in value_cards:
-        if (c >= (17 - dealer_value)):
+        if (c <= (17 - dealer_value)):
             count += 1
 
     if (dealer_value < 17):                                             # probabilidade do dealer fazer hit na proxima jogada
         if (dealer_value <= 10):
+            if(count > 12):
+                count = 12;
             prob_hit = 1.0 * (count + 1) / 13                           # +1 porque o Ace é favorável neste caso
         else:
             prob_hit = 1.0 * (count) / 13
