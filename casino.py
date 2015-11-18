@@ -7,10 +7,10 @@ if __name__ == '__main__':
 
     players = [StudentPlayer("Student",100)]
 
-    for i in range(100000):
+    for i in range(10):
         print players
 
-        '''
+
         print "\nIteracao: " + str(i) + "\n"
         fileobj = open("values.txt", "r")
         info = fileobj.read()
@@ -19,9 +19,8 @@ if __name__ == '__main__':
         fileobj = open("values.txt", "w")
         fileobj.write(str(info) + '\n')
         fileobj.close()
-        '''
 
-        g = Game(players, min_bet=1, max_bet=5)
+        g = Game(players, min_bet=1, max_bet=25)
         #g = Game(players, debug=True)
         g.run()
 

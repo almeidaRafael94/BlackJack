@@ -24,7 +24,7 @@ class Player(object):
         self.table = 0
         self.pocket += prize
 
-        '''
+
         # apenas para criacao do ficheiro de dados
         #-----------------------------------------
         fileobj = open("values.txt","r")
@@ -44,7 +44,7 @@ class Player(object):
         fileobj.write(gains)
         fileobj.close()
         #------------------------------------------
-        '''
+
 
 # re-implement all the next methods
     def debug_state(self, dealer, players):
