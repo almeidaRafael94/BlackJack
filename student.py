@@ -39,13 +39,15 @@ class StudentPlayer(Player):
         attitude = aggressivity_power(self,self.pocket,self.initial_money)   # apostar percentagem de popcket
 
         if(attitude == "aggressive"):
-            bet = int(self.pocket*0.1)
+            bet = self.pocket*0.1000
         elif(attitude == "moderateUp"):
-            bet = int(self.pocket*0.05)
+            bet = self.pocket*0.0475
         elif(attitude == "moderateDown"):
-            bet = int(self.pocket*0.02)
+            bet = self.pocket*0.0200
         else:
-            bet = int(self.pocket*0.01)                                     # bet = min_bet ?? apostar o minimo para
+            bet = self.pocket*0.0100
+                                                                            # bet = min_bet ?? apostar o minimo para
+        bet = int(round(bet))
                                                                             # reduzir a perda caso aconteça
         if(bet < self.minBet):
             bet = self.minBet
@@ -114,8 +116,8 @@ def dealer_probability(self, dealer):
         if c.is_ace():
             dealer_hand_nAce += 1;
 
-    print "\ndealer_hand_Ace : %s" % str(dealer_hand_Ace)
-    print "\ndealer_hand_nAce: %s" % str(dealer_hand_nAce)
+    #print "\ndealer_hand_Ace : %s" % str(dealer_hand_Ace)
+    #print "\ndealer_hand_nAce: %s" % str(dealer_hand_nAce)
 
     dealer_totalValue = 0  # valor total da mao do player
 
@@ -125,7 +127,7 @@ def dealer_probability(self, dealer):
         else:
             dealer_totalValue += c.value()
 
-    print "\ndealer_totalValue: %d" % dealer_totalValue
+    #print "\ndealer_totalValue: %d" % dealer_totalValue
 
     dif_dealer = 0
 
@@ -138,13 +140,13 @@ def dealer_probability(self, dealer):
     else:
         dif_dealer = 21 - dealer_value
 
-    print "\ndif_dealer: %d" % dif_dealer
+    #print "\ndif_dealer: %d" % dif_dealer
 
     num_benefit_cards_dealer = len(
         [x for x in value_cards if dif_dealer >= x])                                        # numer de cartas beneficas para o dealer
-    print num_benefit_cards_dealer
+    #print num_benefit_cards_dealer
 
-    print "\nnum_benefit_cards_dealer: %d" % num_benefit_cards_dealer
+    #print "\nnum_benefit_cards_dealer: %d" % num_benefit_cards_dealer
 
     prob_dealer_not_bust = 1.0 * num_benefit_cards_dealer / 13                              # probabilidade de dealer melhorar a sua mao
     prob_dealer_bust = 1 - (1.0 * prob_dealer_not_bust)
@@ -245,10 +247,13 @@ def moderatePlayer(self,player,dealer,player_value,dealer_value):               
     op = ""
     if(last_dealer_value == "stand"):                              # dealer fez stand
         strtmp += "\nCondition: Dealer fez stand, já tem 17 pontos"
-        if(player_value < 17):
+        if(player_value <= 17):
             op = "h"
         else:
             op = "s"
+    elif(dealer_value > 17):
+        op = "s"
+        #strtmp += "\nCondition: dealer_value > 17"
     elif(dealer_prob_bust >= 0.80):
         op = "s"
         strtmp += "\nCondition: Dealer_prob_BUST >= 0.8"
@@ -261,6 +266,8 @@ def moderatePlayer(self,player,dealer,player_value,dealer_value):               
     elif(player_value == 16):
         strtmp += "\nCondition: Player_value = 16"
         if(dealer_value > 14 and dealer_prob_bust <= 0.5):
+            op = "h"
+        elif(dealer_prob_hit >= 0.5):
             op = "h"
         else:
             op = "s"
