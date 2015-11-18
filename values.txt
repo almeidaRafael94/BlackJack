@@ -1,0 +1,206 @@
+
+Iteracao: 0
+
+Player_value 12
+Player_Bust 0.307692307692
+Player_NOT_BUST 0.692307692308
+Player_better_hand 0.692307692308
+Dealer_value 15
+Dealer_Bust 0.538461538462
+Dealer_NOT_BUST 0.461538461538
+Dealer_better_hand 0.461538461538
+Dealer_prob_hit 0.0769230769231
+Condition: prob_Player_BH >= 0.65
+OP -> h
+
+Last Pocket: 100 Prize: 1 New pocker: 101
+----------------------------END GAME------------------------------
+
+Iteracao: 1
+
+Player_value 14
+Player_Bust 0.0
+Player_NOT_BUST 1.0
+Player_better_hand 0.538461538462
+Dealer_value 13
+Dealer_Bust 0.384615384615
+Dealer_NOT_BUST 0.615384615385
+Dealer_better_hand 0.615384615385
+Dealer_prob_hit 0.230769230769
+Condition: Dealer_prob_bust <= 0.4 
+OP -> h
+
+Player_value 14
+Player_Bust 0.461538461538
+Player_NOT_BUST 0.538461538462
+Player_better_hand 0.538461538462
+Dealer_value 0
+Dealer_Bust 0.0
+Dealer_NOT_BUST 1.0
+Dealer_better_hand 1.0
+Dealer_prob_hit 1.0
+Condition: Dealer_prob_bust <= 0.4 
+OP -> h
+
+Last Pocket: 101 Prize: 1 New pocker: 102
+----------------------------END GAME------------------------------
+
+Iteracao: 2
+
+Player_value 12
+Player_Bust 0.307692307692
+Player_NOT_BUST 0.692307692308
+Player_better_hand 0.692307692308
+Dealer_value 14
+Dealer_Bust 0.461538461538
+Dealer_NOT_BUST 0.538461538462
+Dealer_better_hand 0.538461538462
+Dealer_prob_hit 0.153846153846
+Condition: prob_Player_BH >= 0.65
+OP -> h
+
+Last Pocket: 102 Prize: 1 New pocker: 103
+----------------------------END GAME------------------------------
+
+Iteracao: 3
+
+Player_value 19
+Player_Bust 0.846153846154
+Player_NOT_BUST 0.153846153846
+Player_better_hand 0.153846153846
+Dealer_value 10
+Dealer_Bust 0.0
+Dealer_NOT_BUST 1.0
+Dealer_better_hand 1.0
+Dealer_prob_hit 0.538461538462
+Condition: Player_value > 16
+OP -> s
+
+Player_value 19
+Player_Bust 0.846153846154
+Player_NOT_BUST 0.153846153846
+Player_better_hand 0.153846153846
+Dealer_value 19
+Dealer_Bust 0.846153846154
+Dealer_NOT_BUST 0.153846153846
+Dealer_better_hand 0.153846153846
+Dealer_prob_hit 0
+Condition: Dealer_prob_BUST >= 0.8
+OP -> s
+
+Last Pocket: 103 Prize: 1 New pocker: 104
+----------------------------END GAME------------------------------
+
+Iteracao: 4
+
+Player_value 16
+Player_Bust 0.615384615385
+Player_NOT_BUST 0.384615384615
+Player_better_hand 0.384615384615
+Dealer_value 9
+Dealer_Bust 0.0
+Dealer_NOT_BUST 1.0
+Dealer_better_hand 1.0
+Dealer_prob_hit 0.615384615385
+Condition: Player_value = 16
+OP -> s
+
+Last Pocket: 104 Prize: -1 New pocker: 103
+----------------------------END GAME------------------------------
+
+Iteracao: 5
+
+Player_value 14
+Player_Bust 0.461538461538
+Player_NOT_BUST 0.538461538462
+Player_better_hand 0.538461538462
+Dealer_value 21
+Dealer_Bust 1.0
+Dealer_NOT_BUST 0.0
+Dealer_better_hand 0.0
+Dealer_prob_hit 0
+Condition: Dealer_prob_BUST >= 0.8
+OP -> s
+
+Player_value 14
+Player_Bust 0.461538461538
+Player_NOT_BUST 0.538461538462
+Player_better_hand 0.538461538462
+Dealer_value 15
+Dealer_Bust 0.538461538462
+Dealer_NOT_BUST 0.461538461538
+Dealer_better_hand 0.461538461538
+Dealer_prob_hit 0.0769230769231
+Condition: Dealer_prob_bust ]0.5 , 0.7] 
+OP -> s
+
+Player_value 14
+Player_Bust 0.461538461538
+Player_NOT_BUST 0.538461538462
+Player_better_hand 0.538461538462
+Dealer_value 15
+Dealer_Bust 0.538461538462
+Dealer_NOT_BUST 0.461538461538
+Dealer_better_hand 0.461538461538
+Dealer_prob_hit 0.0769230769231
+Condition: Dealer fez stand, já tem 17 pontos
+OP -> h
+
+Last Pocket: 103 Prize: -1 New pocker: 102
+----------------------------END GAME------------------------------
+
+Iteracao: 6
+
+Player_value 15
+Player_Bust 0.538461538462
+Player_NOT_BUST 0.461538461538
+Player_better_hand 0.461538461538
+Dealer_value 18
+Dealer_Bust 0.769230769231
+Dealer_NOT_BUST 0.230769230769
+Dealer_better_hand 0.230769230769
+Dealer_prob_hit 0
+Condition: Dealer_prob_bust ]0.7 , 0.8[ 
+OP -> s
+
+Last Pocket: 102 Prize: -1 New pocker: 101
+----------------------------END GAME------------------------------
+
+Iteracao: 7
+
+Player_value 20
+Player_Bust 0.923076923077
+Player_NOT_BUST 0.0769230769231
+Player_better_hand 0.0769230769231
+Dealer_value 10
+Dealer_Bust 0.0
+Dealer_NOT_BUST 1.0
+Dealer_better_hand 1.0
+Dealer_prob_hit 0.538461538462
+Condition: Player_value > 16
+OP -> s
+
+Last Pocket: 101 Prize: 1 New pocker: 102
+----------------------------END GAME------------------------------
+
+Iteracao: 8
+
+Player_value 15
+Player_Bust 0.538461538462
+Player_NOT_BUST 0.461538461538
+Player_better_hand 0.461538461538
+Dealer_value 13
+Dealer_Bust 0.384615384615
+Dealer_NOT_BUST 0.615384615385
+Dealer_better_hand 0.615384615385
+Dealer_prob_hit 0.230769230769
+Condition: Dealer_prob_bust <= 0.4 
+OP -> h
+
+Last Pocket: 102 Prize: -1 New pocker: 101
+----------------------------END GAME------------------------------
+
+Iteracao: 9
+
+Last Pocket: 101 Prize: 1 New pocker: 102
+----------------------------END GAME------------------------------
