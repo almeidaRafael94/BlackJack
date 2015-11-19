@@ -21,7 +21,7 @@ class StudentPlayer(Player):
         self.initial_money = money
         self.dealer_cards = 0
         self.minBet = 1;
-        self.maxBet = 25;
+        self.maxBet = 100;
 
     def play(self, dealer, players):
 
@@ -36,9 +36,16 @@ class StudentPlayer(Player):
 
     def bet(self, dealer, players):
 
+        strtmp = readFile(self)
+        strtmp += str(self.pocket)
+        writeVal_file(self,strtmp)
+
         attitude = aggressivity_power(self,self.pocket,self.initial_money)   # apostar percentagem de popcket
 
         if(attitude == "aggressive"):
+            #if(self.pocket > self.initial_money*10):                           # patamar de segurança = 1000% do valor inicial
+               # bet = self.pocket*0.0010
+            #else:
             bet = self.pocket*0.1000
         elif(attitude == "moderateUp"):
             bet = self.pocket*0.0475
@@ -214,6 +221,7 @@ def moderatePlayer(self,player,dealer,player_value,dealer_value):               
     dealer_prob_better_hand = dealer_probs[1]
     dealer_prob_hit = dealer_probs[2]
 
+    '''
     strtmp = readFile(self)
     strtmp += "\nPlayer_value " + str(player_value)
     strtmp += "\nPlayer_Bust "  + str(player_prob_bust)
@@ -224,7 +232,7 @@ def moderatePlayer(self,player,dealer,player_value,dealer_value):               
     strtmp += "\nDealer_NOT_BUST " + str(dealer_prob_not_bust)
     strtmp += "\nDealer_better_hand " + str(dealer_prob_better_hand)
     strtmp += "\nDealer_prob_hit " + str(dealer_prob_hit)
-
+    '''
 
     if (len(dealer.hand) > self.dealer_cards):                    # valor da mao do dealer da ultima jogada
         last_dealer_value = "hit"
@@ -246,7 +254,7 @@ def moderatePlayer(self,player,dealer,player_value,dealer_value):               
 
     op = ""
     if(last_dealer_value == "stand"):                              # dealer fez stand
-        strtmp += "\nCondition: Dealer fez stand, já tem 17 pontos"
+        #strtmp += "\nCondition: Dealer fez stand, já tem 17 pontos"
         if(player_value <= 17):
             op = "h"
         else:
@@ -256,15 +264,15 @@ def moderatePlayer(self,player,dealer,player_value,dealer_value):               
         #strtmp += "\nCondition: dealer_value > 17"
     elif(dealer_prob_bust >= 0.80):
         op = "s"
-        strtmp += "\nCondition: Dealer_prob_BUST >= 0.8"
+        #strtmp += "\nCondition: Dealer_prob_BUST >= 0.8"
     elif(player_prob_better_hand >= 0.65):
         op = "h"
-        strtmp += "\nCondition: prob_Player_BH >= 0.65"
+        #strtmp += "\nCondition: prob_Player_BH >= 0.65"
     elif(player_value>16):
         op = "s"
-        strtmp += "\nCondition: Player_value > 16"
+        #strtmp += "\nCondition: Player_value > 16"
     elif(player_value == 16):
-        strtmp += "\nCondition: Player_value = 16"
+        #strtmp += "\nCondition: Player_value = 16"
         if(dealer_value > 14 and dealer_prob_bust <= 0.5):
             op = "h"
         elif(dealer_prob_hit >= 0.5):
@@ -272,7 +280,7 @@ def moderatePlayer(self,player,dealer,player_value,dealer_value):               
         else:
             op = "s"
     elif(dealer_prob_bust > 0.7 and dealer_prob_bust < 0.8):
-        strtmp += "\nCondition: Dealer_prob_bust ]0.7 , 0.8[ "
+        #strtmp += "\nCondition: Dealer_prob_bust ]0.7 , 0.8[ "
         if(player_prob_bust >= 0.7):
             cmd = ["h", "s"]
             op = cmd[random.randint(0,1)]
@@ -283,7 +291,7 @@ def moderatePlayer(self,player,dealer,player_value,dealer_value):               
             op = cmd[random.randint(0,3)]
 
     elif(dealer_prob_bust > 0.5 and dealer_prob_bust <= 0.7):
-        strtmp += "\nCondition: Dealer_prob_bust ]0.5 , 0.7] "
+        #strtmp += "\nCondition: Dealer_prob_bust ]0.5 , 0.7] "
         if(player_prob_better_hand >= 0.6):
             op = "h"
         elif(dealer_prob_better_hand >= 0.6):
@@ -291,14 +299,14 @@ def moderatePlayer(self,player,dealer,player_value,dealer_value):               
         else:
             op = "s"
     else:
-        strtmp += "\nCondition: Dealer_prob_bust <= 0.4 "
+        #strtmp += "\nCondition: Dealer_prob_bust <= 0.4 "
         if(player_prob_better_hand <= 0.40):
             op = "s"
         else:
             op = "h"
 
-    strtmp += "\nOP -> " + op
-    writeVal_file(self,strtmp)
+    #strtmp += "\nOP -> " + op
+    #writeVal_file(self,strtmp)
     return op
 
 def aggressive_players(self,player,dealer,player_value,dealer_value):                           # player com atitude agressiva
