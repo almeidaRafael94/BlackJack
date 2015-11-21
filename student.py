@@ -56,11 +56,11 @@ class StudentPlayer(Player):
 
         return op
 
-    def bet(self, bet_rules, dealer, players):
+    def bet(self, dealer, players):
 
         self.firstBet = True
-        minBet = bet_rules[0]
-        maxBet = bet_rules[1]
+        #minBet = bet_rules[0]
+        #maxBet = bet_rules[1]
 
         #strtmp = readFile(self,"pocket.txt")
         #strtmp += str(self.pocket)
@@ -82,10 +82,10 @@ class StudentPlayer(Player):
                                                                             # bet = min_bet ?? apostar o minimo para
         bet = int(round(bet))
                                                                             # reduzir a perda caso aconteça
-        if(bet < minBet):
-            bet = minBet
-        if(bet > maxBet):
-            bet = maxBet
+        #if(bet < minBet):
+         #   bet = minBet
+        #if(bet > maxBet):
+        #    bet = maxBet
 
         return bet
 
