@@ -19,7 +19,7 @@ if __name__ == '__main__':
         fileobj.write(str(info) + '\n')
         fileobj.close()
 
-        g = Game(players, min_bet=1, max_bet=50)
+        #g = Game(players, min_bet=1, max_bet=50)
         g = Game(players, debug=True)
         g.run()
 
