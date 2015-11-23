@@ -31,23 +31,8 @@ class StudentPlayer(Player):
         player_value = card.value(player.hand) if card.value(player.hand) <= 21 else 0  # value cards my boot
 
         if(self.firstBet):
-            strtmp = readFile(self,"values.txt")
-            if(dealer_value+11 < 17):
-                op = "s"
-                strtmp += str("É a primeira jogada! Max_dealer_value < 17 \nOP -> s")
-            elif(dealer_value >= 18):
-                op = "s"
-                strtmp += str("É a primeira jogada! dealer_value >= 18 \nOP -> s")
-            elif(player_value >= 17):
-                op = "s"
-                strtmp += str("É a primeira jogada! Mas a player_value >= 17!! \nOP -> s")
-            else:
-                op = "h"
-                strtmp += str("É a primeira jogada! Player_values < 17!!\nOP -> h")
-
-            writeFile(self,strtmp,"values.txt")
-            self.firstBet = False;
-
+        	op = firstMove(self,player, dealer, player_value, dealer_value)
+        	self.firstBet = False
         else:
             op = moderatePlayer(self,player, dealer, player_value, dealer_value)
 
@@ -88,14 +73,21 @@ class StudentPlayer(Player):
         return bet
 
     def payback(self, prize):
+    	strtmp = readFile(self,"values.txt")
+
         if(prize > 0):
             self.winCount +=1
+            strtmp += "\nWIN!"
         if(prize < 0):
             self.loseCount +=1
+            strtmp += "\nLOSE!"
+
+        writeFile(self,strtmp,"values.txt")
 
         super(StudentPlayer, self).payback(prize)
         self.dealer_cards = 0
-        print "\nWINS COUNTER = %(first)d | LOSE COUNTER = %(second)d" % {"first":self.winCount , "second":self.loseCount}
+        #print "\nWINS COUNTER = %(first)d | LOSE COUNTER = %(second)d" % {"first":self.winCount , "second":self.loseCount}
+
 
 def player_probability(self, player):                                                       # return [prob_not_bust,prob_bust]
     value_cards = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10]                               # cards value
@@ -146,7 +138,7 @@ def dealer_probability(self, dealer):
     dealer_value = card.value(dealer.hand) if card.value(dealer.hand) <= 21 else 0          # value cards dealer
     dealer_value_estimated = dealer_value + 6.85                                             # valor estimado da mao do delaer
 
-    print "dealer_value = " +str(dealer_value)
+    #print "dealer_value = " +str(dealer_value)
 
     dealer_hand_Ace = False                                                                 # mao do dealer contem Ace
     dealer_hand_nAce = 0                                                                    # numero de Ace's visiveis do dealer
@@ -156,8 +148,8 @@ def dealer_probability(self, dealer):
         if c.is_ace():
             dealer_hand_nAce += 1;
 
-    print "\ndealer_hand_Ace : %s" % str(dealer_hand_Ace)
-    print "\ndealer_hand_nAce: %s" % str(dealer_hand_nAce)
+    #print "\ndealer_hand_Ace : %s" % str(dealer_hand_Ace)
+    #print "\ndealer_hand_nAce: %s" % str(dealer_hand_nAce)
 
     dealer_totalValue = 0               # valor total da mao do delaer
     dealer_totalValue_estimated = 0     # valoer total estimado da mao do dealer
@@ -170,8 +162,8 @@ def dealer_probability(self, dealer):
 
     dealer_totalValue_estimated = dealer_totalValue + 6.85
 
-    print "\ndealer_totalValue: %d" % dealer_totalValue
-    print "\ndealer_totalValue_estimated: %d" % dealer_totalValue_estimated
+    #print "\ndealer_totalValue: %d" % dealer_totalValue
+    #print "\ndealer_totalValue_estimated: %d" % dealer_totalValue_estimated
 
 
     dif_dealer = 0
@@ -188,8 +180,8 @@ def dealer_probability(self, dealer):
 
     dif_dealer_estimated = (dif_dealer - 6.85) + 1
 
-    print "\ndif_dealer: %d" % dif_dealer
-    print "\ndif_dealer_estimated: %d" % dif_dealer_estimated
+    #print "\ndif_dealer: %d" % dif_dealer
+    #print "\ndif_dealer_estimated: %d" % dif_dealer_estimated
 
     num_benefit_cards_dealer = len(
         [x for x in value_cards if dif_dealer >= x])                                        # numer de cartas beneficas para o dealer
@@ -197,8 +189,8 @@ def dealer_probability(self, dealer):
     num_benefit_cards_dealer_estimated = len(
         [x for x in value_cards if dif_dealer_estimated >= x])
 
-    print "\nnum_benefit_cards_dealer: %d" % num_benefit_cards_dealer
-    print "\nnum_benefit_cards_dealer_estimated: %d" % num_benefit_cards_dealer_estimated
+    #print "\nnum_benefit_cards_dealer: %d" % num_benefit_cards_dealer
+    #print "\nnum_benefit_cards_dealer_estimated: %d" % num_benefit_cards_dealer_estimated
 
     prob_dealer_not_bust = 1.0 * num_benefit_cards_dealer / 13                              # probabilidade de dealer melhorar a sua mao
     prob_dealer_bust = 1 - (1.0 * prob_dealer_not_bust)
@@ -273,6 +265,67 @@ def readFile(self,fileName):                                                    
     info = fileobj.read()
     fileobj.close()
     return info
+
+def firstMove(self, player, dealer, player_value, dealer_value):
+            strtmp = readFile(self,"values.txt")
+            if(dealer_value+11 < 17):
+                op = "s"
+                strtmp += str("\nÉ a primeira jogada! Max_dealer_value < 17 \nOP -> s")
+
+            #SE O JOGADOR TEM MAO SOFT
+            elif playerHasAce(self,player) == True:
+            	strtmp += str("\nÉ a primeira jogada, e o Jogador tem um A's na mao")
+            	if dealer_value == 6 or dealer_value == 7 or dealer_value == 8 or dealer_value ==11:
+            		if player_value >= 18:
+            			op="s"
+            			strtmp += str("\nPlayer value >= 18 e o dealer == 6, 7, 8 ou 11\nOP -> s")
+            		else: 
+            			op="h"
+            			strtmp += str("\nPlayer value < 18 e o dealer == 6, 7, 8 ou 11\nOP -> h")
+            	else:
+            		if player_value >= 19:
+            			op="s"
+            			strtmp += str("\nPlayer value >= 19 e o dealer == 9 ou 10\nOP -> s")
+            		else:
+            			op="h"
+            			strtmp += str("\nPlayer value < 19 e o dealer == 9 ou 10\nOP -> h")
+
+
+            #SE O JOGADOR NAO TEM MAO SOFT
+            else:
+            	strtmp += str("É a primeira jogada, e o Jogador não tem um A's na mao")
+            	if dealer_value == 6:
+            		if player_value >= 12:
+            			op="s"
+            			strtmp += str("\nPlayer value >= 12 e o dealer == 6\nOP -> s")
+            		elif (player_value == 9 or player_value == 10 or player_value == 11):
+            			op = "d"
+            			strtmp += str("\n 8 < Player value < 12 e o dealer == 6\nOP -> d")
+            		else:
+            			op="h"
+            			strtmp += str("\nPlayer value < 12 e o dealer == 6\nOP -> h")
+            	
+            	elif (dealer_value == 7 or dealer_value == 8 or dealer_value == 9):
+            		if player_value == 10 or player_value == 11:
+            			op = "d"
+            			strtmp += str("\nPlayer value == 10 ou 11 e o dealer == 7, 8 ou 9\nOP -> d")
+            		elif player_value>=17:
+            			op = "s"
+            			strtmp += str("\nPlayer value >= 17 e o dealer == 7, 8 ou 9\nOP -> s")
+            		else:
+            			op = "h"
+            			strtmp += str("\nPlayer value < 17, != 10 ou 11 e o dealer == 7, 8 ou 9\nOP -> h")
+            	else:
+            		if player_value>=17:
+            			op="s"
+            			strtmp += str("\nPlayer value >= 17 e o dealer > 6\nOP -> s")
+            		else:
+            			op="h"
+            			strtmp += str("\nPlayer value < 17 e o dealer > 6\nOP -> h")
+
+            writeFile(self,strtmp,"values.txt")
+
+            return op
 
 def moderatePlayer(self,player,dealer,player_value,dealer_value):                           # player com atitude moderada
 
@@ -406,3 +459,10 @@ def aggressive_players(self,player,dealer,player_value,dealer_value):           
 
 def defensive_player(self,player,dealer,player_value,dealer_value):                             # player com atitude defensiva
     return 0
+
+
+def playerHasAce(self,player):
+	for c in player.hand:
+		if c.is_ace():
+			return True
+	return False

@@ -7,7 +7,8 @@ if __name__ == '__main__':
 
     players = [StudentPlayer("BOT",100)]
 
-    for i in range(1):
+
+    for i in range(1000):
         print players
 
         print "\nIteracao: " + str(i) + "\n"
@@ -19,8 +20,8 @@ if __name__ == '__main__':
         fileobj.write(str(info) + '\n')
         fileobj.close()
 
-        #g = Game(players, min_bet=1, max_bet=50)
-        g = Game(players, debug=True)
+        g = Game(players, min_bet=1, max_bet=50)
+        #g = Game(players, debug=True)
         g.run()
 
     print "OVERALL: ", players
