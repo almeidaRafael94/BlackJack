@@ -12,8 +12,6 @@ __version__ = "0.1"
 import card
 import random
 from player import Player
-from collections import Counter
-
 
 class StudentPlayer(Player):
     def __init__(self, name="Student", money=0):
@@ -23,6 +21,8 @@ class StudentPlayer(Player):
         self.firstBet = True;
         self.winCount = 0
         self.loseCount = 0
+        self.minBet = 1         # enquando não existir acesso aos valores da aposta, definir manualmente
+        self.maxBet = 50
 
     def play(self, dealer, players):
 
@@ -59,18 +59,16 @@ class StudentPlayer(Player):
     def bet(self, dealer, players):
 
         self.firstBet = True
-        #minBet = bet_rules[0]
-        #maxBet = bet_rules[1]
 
-        #strtmp = readFile(self,"pocket.txt")
+        #strtmp = readFile(self,"pocket.txt")                                       # para criação do gráfico POCKET/NJogadas
         #strtmp += str(self.pocket)
         #writeFile(self,strtmp,"pocket.txt")
 
-        attitude = aggressivity_power(self,self.pocket,self.initial_money)   # apostar percentagem de popcket
+        attitude = aggressivity_power(self,self.pocket,self.initial_money)          # apostar percentagem de popcket
 
         if(attitude == "aggressive"):
-            #if(self.pocket > self.initial_money*10):                           # patamar de segurança = 1000% do valor inicial
-               # bet = self.pocket*0.0010
+            #if(self.pocket > self.initial_money*10):                               # patamar de segurança = 1000% do valor inicial
+               # bet = self.pocket*0.0010                                           # estado = desactivo
             #else:
             bet = self.pocket*0.1000
         elif(attitude == "moderateUp"):
@@ -79,13 +77,13 @@ class StudentPlayer(Player):
             bet = self.pocket*0.0200
         else:
             bet = self.pocket*0.0100
-                                                                            # bet = min_bet ?? apostar o minimo para
+                                                                                    # bet = min_bet ?? apostar o minimo para
         bet = int(round(bet))
-                                                                            # reduzir a perda caso aconteça
-        #if(bet < minBet):
-         #   bet = minBet
-        #if(bet > maxBet):
-        #    bet = maxBet
+                                                                                    # reduzir a perda caso aconteça
+        if(bet < self.minBet):
+            bet = self.minBet
+        if(bet > self.maxBet):
+            bet = self.maxBet
 
         return bet
 
