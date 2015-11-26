@@ -13,321 +13,263 @@ import card
 import random
 from player import Player
 
+
 class StudentPlayer(Player):
     def __init__(self, name="Student", money=0):
         super(StudentPlayer, self).__init__(name, money)
         self.initial_money = money
+        self.value_cards = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10]  # cards value
         self.dealer_cards = 0
         self.firstBet = True;
         self.winCount = 0
         self.loseCount = 0
-        self.minBet = 1         # enquando não existir acesso aos valores da aposta, definir manualmente
+        self.minBet = 2  # enquando não existir acesso aos valores da aposta, definir manualmente
         self.maxBet = 50
-
         self.countCondWin = 0
         self.countCondLose = 0
         self.cond = False
+        self.countSurrender = 0
 
     def play(self, dealer, players):
 
-        player = [x for x in players if x.player.name == self.name][0]                  # player = my boot (name = Student)
+        player = [x for x in players if x.player.name == self.name][0]  # player = my boot (name = Student)
         dealer_value = card.value(dealer.hand) if card.value(dealer.hand) <= 21 else 0  # value cards dealer
         player_value = card.value(player.hand) if card.value(player.hand) <= 21 else 0  # value cards my boot
 
-        if(self.firstBet):
-            op = firstMove(self,player, dealer, player_value, dealer_value)
+        if (self.firstBet):
+            op = self.firstMove(player, dealer, player_value, dealer_value)
             self.firstBet = False;
         else:
-            op = moderatePlayer(self,player, dealer, player_value, dealer_value)
+            op = self.moderatePlayer(player, dealer, player_value, dealer_value)
 
         self.dealer_cards = len(dealer.hand)
 
         return op
 
+
     def bet(self, dealer, players):
 
         self.firstBet = True
 
-        #strtmp = readFile(self,"pocket.txt")                                       # para criação do gráfico POCKET/NJogadas
-        #strtmp += str(self.pocket)
-        #writeFile(self,strtmp,"pocket.txt")
+        # strtmp = readFile("pocket.txt")                                       # para criação do gráfico POCKET/NJogadas
+        # strtmp += str(self.pocket)
+        # writeFile(strtmp,"pocket.txt")
 
-        attitude = aggressivity_power(self,self.pocket,self.initial_money)          # apostar percentagem de popcket
+        attitude = self.aggressivity_power(self.pocket, self.initial_money)  # apostar percentagem de popcket
 
-        if(attitude == "aggressive"):
-            bet = self.pocket*0.1000
-        elif(attitude == "moderateUp"):
-            bet = self.pocket*0.0475
-        elif(attitude == "moderateDown"):
-            bet = self.pocket*0.0200
+        if (attitude == "aggressive"):
+            bet = self.pocket * 0.1000
+        elif (attitude == "moderateUp"):
+            bet = self.pocket * 0.0600
+        elif (attitude == "moderateDown"):
+            bet = self.pocket * 0.0400
         else:
-            bet = self.pocket*0.0100
+            bet = self.pocket * 0.0200
 
         bet = int(round(bet))
-                                                                                   # reduzir a perda caso aconteça
-        if(bet < self.minBet):
+        # reduzir a perda caso aconteça
+        if (bet < self.minBet):
             bet = self.minBet
-        if(bet > self.maxBet):
+        if (bet > self.maxBet):
             bet = self.maxBet
-        bet = self.minBet
+        bet = 2
         return bet
 
     def payback(self, prize):
-    	'''
-    	strtmp = readFile(self,"values.txt")
 
-        if(prize > 0):
-            self.winCount +=1
+        #strtmp = self.readFile("values.txt")
+
+        if (prize > 0):
+            self.winCount += 1
             #strtmp += "\nWIN!"
-        if(prize < 0):
-            self.loseCount +=1
+        if (prize < 0):
+            self.loseCount += 1
             #strtmp += "\nLOSE!"
 
-        writeFile(self,strtmp,"values.txt")
-        '''
+        #self.writeFile(strtmp, "values.txt")
+
         super(StudentPlayer, self).payback(prize)
         self.dealer_cards = 0
 
-
-        print "\nWINS COUNTER = %(first)d | LOSE COUNTER = %(second)d" % {"first":self.winCount , "second":self.loseCount}
-
-        if(self.cond):
-            if(prize > 0):
-                self.countCondWin +=1
-            elif(prize < 0):
-                self.countCondLose +=1
+        print "\nWINS COUNTER = %(first)d | LOSE COUNTER = %(second)d" % {"first": self.winCount,
+                                                                          "second": self.loseCount}
+        if (self.cond):
+            if (prize > 0):
+                self.countCondWin += 1
+            elif (prize < 0):
+                self.countCondLose += 1
         self.cond = False
-        print "\nWIN COUNTER COND = %(first)d | LOSE COUNTER COND= %(second)d" % {"first":self.countCondWin , "second":self.countCondLose}
+        print "\nWIN COUNTER COND = %(first)d | LOSE COUNTER COND= %(second)d" % {"first": self.countCondWin,"second": self.countCondLose}
+        print "\n nr de surrenders " + str(self.countSurrender)
 
-def player_probability(self, player):                                                       # return [prob_not_bust,prob_bust]
-    value_cards = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10]                               # cards value
-    player_value = card.value(player.hand) if card.value(player.hand) <= 21 else 0          # value cards my boot
+#-------------------------------------------- PLAYER PROBS -------------------------------------------#
+    def player_probability(self, player):  # return [prob_not_bust,prob_bust]
 
-    player_hand_Ace = False                                                                 # mao do player contem Ace
-    player_hand_nAce = 0                                                                    # numero de Ace's visiveis do player
-    if any(c.is_ace() for c in player.hand):
-        player_hand_Ace = True
-    for c in player.hand:
-        if c.is_ace():
-            player_hand_nAce += 1;
 
-    player_totalValue = 0                                                                   # valor total da mao do player
+        player_value = card.value(player.hand) if card.value(player.hand) <= 21 else 0  # value cards my boot
 
-    for c in player.hand:
-        if c.is_ace():
-            player_totalValue += c.value() + 10
+        player_hand_Ace = False  # mao do player contem Ace
+        player_hand_nAce = 0  # numero de Ace's visiveis do player
+        if any(c.is_ace() for c in player.hand):
+            player_hand_Ace = True
+        for c in player.hand:
+            if c.is_ace():
+                player_hand_nAce += 1;
+
+        player_totalValue = 0  # valor total da mao do player
+
+        for c in player.hand:
+            if c.is_ace():
+                player_totalValue += c.value() + 10
+            else:
+                player_totalValue += c.value()
+                # CASO PLAYER FACA HIT
+        dif_player = 0
+        # diferenca entre blackjack e o valor da mao do dealer
+        if (player_hand_Ace):  # Caso a mao do dealer contenha 1 ou mais Ace's
+            if (player_value != player_totalValue):
+                dif_player = 21 - player_value  # teremos que subtratir o o numero de Ace * 10
+            else:
+                dif_player = 21 - (
+                    player_totalValue - (player_hand_nAce * 10))
         else:
-            player_totalValue += c.value()
-                                                                                            # CASO PLAYER FACA HIT
-    dif_player = 0
-                                                                           # diferenca entre blackjack e o valor da mao do dealer
-    if (player_hand_Ace):                                                                   # Caso a mao do dealer contenha 1 ou mais Ace's
-        if (player_value != player_totalValue):
-            dif_player = 21 - player_value                                   # teremos que subtratir o o numero de Ace * 10
+            dif_player = 21 - player_value;
+
+        num_benefit_cards_player = len(
+            [x for x in self.value_cards if dif_player >= x])  # numer de cartas beneficas para o player
+        prob_player_not_bust = 1.0 * num_benefit_cards_player / 13  # probabilidade de player melhorar a sua mao
+        prob_player_bust = 1 - (1.0 * prob_player_not_bust)  # probabilidade de o player fazer bust
+
+        if (player_hand_Ace):  # calcular probabilidade de melhorar mao em caso de "h"
+            prob_better_hand = 1.0 * (21 - player_value) / 13
         else:
-            dif_player = 21 - (
-            player_totalValue - (player_hand_nAce * 10))
-    else:
-        dif_player = 21 - player_value;
+            prob_better_hand = prob_player_not_bust
 
-    num_benefit_cards_player = len(
-        [x for x in value_cards if dif_player >= x])                                        # numer de cartas beneficas para o player
-    prob_player_not_bust = 1.0 * num_benefit_cards_player / 13                              # probabilidade de player melhorar a sua mao
-    prob_player_bust = 1 - (1.0 * prob_player_not_bust)                                     # probabilidade de o player fazer bust
-
-    if (player_hand_Ace):                                                                   # calcular probabilidade de melhorar mao em caso de "h"
-        prob_better_hand = 1.0 * (21 - player_value) / 13
-    else:
-        prob_better_hand = prob_player_not_bust
-
-    return [prob_player_bust, prob_better_hand]
+        return [prob_player_bust, prob_better_hand]
 
 
-def dealer_probability(self, dealer):
-    value_cards = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10]
-    dealer_value = card.value(dealer.hand) if card.value(dealer.hand) <= 21 else 0          # value cards dealer
-    dealer_value_estimated = dealer_value + 6.85                                             # valor estimado da mao do delaer
+#-------------------------------------------- DEALER PROBS -------------------------------------------#
+    def dealer_probability(self, dealer):
 
-    #print "dealer_value = " +str(dealer_value)
+        dealer_value = card.value(dealer.hand) if card.value(dealer.hand) <= 21 else 0  # value cards dealer
+        dealer_value_estimated = dealer_value + 6.85  # valor estimado da mao do delaer
 
-    dealer_hand_Ace = False                                                                 # mao do dealer contem Ace
-    dealer_hand_nAce = 0                                                                    # numero de Ace's visiveis do dealer
-    if any(c.is_ace() for c in dealer.hand):
-        dealer_hand_Ace = True
-    for c in dealer.hand:
-        if c.is_ace():
-            dealer_hand_nAce += 1;
+        # print "dealer_value = " +str(dealer_value)
 
-    #print "\ndealer_hand_Ace : %s" % str(dealer_hand_Ace)
-    #print "\ndealer_hand_nAce: %s" % str(dealer_hand_nAce)
+        dealer_hand_Ace = False  # mao do dealer contem Ace
+        dealer_hand_nAce = 0  # numero de Ace's visiveis do dealer
+        if any(c.is_ace() for c in dealer.hand):
+            dealer_hand_Ace = True
+        for c in dealer.hand:
+            if c.is_ace():
+                dealer_hand_nAce += 1;
 
-    dealer_totalValue = 0               # valor total da mao do delaer
-    dealer_totalValue_estimated = 0     # valoer total estimado da mao do dealer
+        # print "\ndealer_hand_Ace : %s" % str(dealer_hand_Ace)
+        # print "\ndealer_hand_nAce: %s" % str(dealer_hand_nAce)
 
-    for c in dealer.hand:
-        if c.is_ace():
-            dealer_totalValue += c.value() + 10
+        dealer_totalValue = 0  # valor total da mao do delaer
+        dealer_totalValue_estimated = 0  # valoer total estimado da mao do dealer
+
+        for c in dealer.hand:
+            if c.is_ace():
+                dealer_totalValue += c.value() + 10
+            else:
+                dealer_totalValue += c.value()
+
+        dealer_totalValue_estimated = dealer_totalValue + 6.85
+
+        # print "\ndealer_totalValue: %d" % dealer_totalValue
+        # print "\ndealer_totalValue_estimated: %d" % dealer_totalValue_estimated
+
+
+        dif_dealer = 0
+        dif_dealer_estimated = 0
+
+        if (dealer_hand_Ace):  # diferenca entre blackjack e o valor da mao do dealer
+            if (dealer_value != dealer_totalValue):  # Caso a mao do dealer contenha 1 ou mais Ace's
+                dif_dealer = 21 - dealer_value
+            else:
+                dif_dealer = 21 - (
+                    dealer_totalValue - (dealer_hand_nAce * 10))  # teremos que subtratir o o numero de Ace * 10
         else:
-            dealer_totalValue += c.value()
-
-    dealer_totalValue_estimated = dealer_totalValue + 6.85
-
-    #print "\ndealer_totalValue: %d" % dealer_totalValue
-    #print "\ndealer_totalValue_estimated: %d" % dealer_totalValue_estimated
-
-
-    dif_dealer = 0
-    dif_dealer_estimated = 0
-
-    if(dealer_hand_Ace):                                                                   # diferenca entre blackjack e o valor da mao do dealer
-        if(dealer_value != dealer_totalValue):                                             # Caso a mao do dealer contenha 1 ou mais Ace's
             dif_dealer = 21 - dealer_value
+
+        dif_dealer_estimated = (dif_dealer - 6.85) + 1
+
+        # print "\ndif_dealer: %d" % dif_dealer
+        # print "\ndif_dealer_estimated: %d" % dif_dealer_estimated
+
+        num_benefit_cards_dealer = len(
+            [x for x in self.value_cards if dif_dealer >= x])  # numer de cartas beneficas para o dealer
+
+        num_benefit_cards_dealer_estimated = len(
+            [x for x in self.value_cards if dif_dealer_estimated >= x])
+
+        # print "\nnum_benefit_cards_dealer: %d" % num_benefit_cards_dealer
+        # print "\nnum_benefit_cards_dealer_estimated: %d" % num_benefit_cards_dealer_estimated
+
+        prob_dealer_not_bust = 1.0 * num_benefit_cards_dealer / 13  # probabilidade de dealer melhorar a sua mao
+        prob_dealer_bust = 1 - (1.0 * prob_dealer_not_bust)
+        prob_dealer_not_bust_estimated = 1.0 * num_benefit_cards_dealer_estimated / 13
+        prob_dealer_bust_estimated = 1 - (1.0 * prob_dealer_not_bust_estimated)
+
+        if (dealer_hand_Ace):  # calcular probabilidade de melhorar mao
+            prob_better_hand = 1.0 * (21 - dealer_value) / 13
+            prob_better_hand_estimated = 1.0 * (21 - dealer_value_estimated) / 13
         else:
-            dif_dealer = 21 - (
-            dealer_totalValue - (dealer_hand_nAce * 10))                                   # teremos que subtratir o o numero de Ace * 10
-    else:
-        dif_dealer = 21 - dealer_value
+            prob_better_hand = prob_dealer_not_bust
+            prob_better_hand_estimated = prob_dealer_not_bust_estimated
 
-    dif_dealer_estimated = (dif_dealer - 6.85) + 1
+        count = 0
+        for c in self.value_cards:
+            if (c < (17 - dealer_value)):
+                count += 1
 
-    #print "\ndif_dealer: %d" % dif_dealer
-    #print "\ndif_dealer_estimated: %d" % dif_dealer_estimated
-
-    num_benefit_cards_dealer = len(
-        [x for x in value_cards if dif_dealer >= x])                                        # numer de cartas beneficas para o dealer
-
-    num_benefit_cards_dealer_estimated = len(
-        [x for x in value_cards if dif_dealer_estimated >= x])
-
-    #print "\nnum_benefit_cards_dealer: %d" % num_benefit_cards_dealer
-    #print "\nnum_benefit_cards_dealer_estimated: %d" % num_benefit_cards_dealer_estimated
-
-    prob_dealer_not_bust = 1.0 * num_benefit_cards_dealer / 13                              # probabilidade de dealer melhorar a sua mao
-    prob_dealer_bust = 1 - (1.0 * prob_dealer_not_bust)
-    prob_dealer_not_bust_estimated = 1.0 * num_benefit_cards_dealer_estimated / 13
-    prob_dealer_bust_estimated =  1 - (1.0 * prob_dealer_not_bust_estimated)
-
-    if (dealer_hand_Ace):                                                                   # calcular probabilidade de melhorar mao
-        prob_better_hand = 1.0 * (21 - dealer_value) / 13
-        prob_better_hand_estimated = 1.0 * (21 - dealer_value_estimated) / 13
-    else:
-        prob_better_hand = prob_dealer_not_bust
-        prob_better_hand_estimated = prob_dealer_not_bust_estimated
-
-    count = 0
-    for c in value_cards:
-        if (c < (17 - dealer_value)):
-            count += 1
-
-    if (dealer_value < 17):                                                                 # probabilidade do dealer fazer hit na proxima jogada
-        if (dealer_value <= 10):
-            if(count > 12):
-                count = 12;
-            prob_hit = 1.0 * (count + 1) / 13                                               # +1 porque o Ace é favorável neste caso
-        else:
-            prob_hit = 1.0 * (count) / 13
-    else:
-        prob_hit = 0
-
-    countEstimated = 0
-    for c in value_cards:
-        if (c < (17 - dealer_value_estimated)):
-            countEstimated += 1
-
-    if (dealer_value_estimated < 17):                                                        # probabilidade estimada
-                                                                                             # do dealer fazer hit na proxima jogada
-        if (dealer_value_estimated <= 10):
-            if(countEstimated > 12):
-                countEstimated = 12;
-            prob_hit_estimated = 1.0 * (countEstimated + 1) / 13                             # +1 porque o Ace é favorável neste caso
-        else:
-            prob_hit_estimated = 1.0 * (countEstimated) / 13
-    else:
-        prob_hit_estimated = 0
-
-    return [prob_dealer_bust, prob_better_hand, prob_hit,
-            prob_dealer_bust_estimated,prob_better_hand_estimated,prob_hit_estimated]
-
-
-def aggressivity_power(self,pocket,initial_money):                                         # Grau de agressividade da jogada
-                                                                                            # influencia:
-       attitude = ""
-       if(pocket >= initial_money+initial_money*0.12):                                             #  atitude do jogador
-            attitude = "aggressive"
-       elif(pocket <= initial_money+initial_money*0.05):                                          #  aposta de jogada
-            attitude = "defensive"                                                          # atitude agressiva implica aposta mais elevada
-       elif(pocket > initial_money+initial_money*0.1 and pocket < initial_money+initial_money*0.12):
-           attitude = "moderateUp"
-       elif(pocket > initial_money+initial_money*0.05 and pocket <= initial_money+initial_money*0.1):
-           attitude = "moderateDown"
-       else:
-            attitude = "defensive"
-
-       return attitude
-
-def writeFile(self, val, fileName):                                                               # guarda info de jogadas no ficheiro
-    fileobj = open(fileName, "w")
-    fileobj.write(str(val) + '\n')
-    fileobj.close()
-
-def readFile(self,fileName):                                                                         # lê info de jogadas no ficheiro
-    fileobj = open(fileName, "r")
-    info = fileobj.read()
-    fileobj.close()
-    return info
-
-def firstMove(self,player, dealer, player_value, dealer_value):
-    #strtmp = readFile(self,"values.txt")
-    if(dealer_value+11 < 17):
-        op = "s"
-        #strtmp += str("É a primeira jogada! Max_dealer_value < 17 \nOP -> s")
-
-    #SE O JOGADOR TEM MAO SOFT
-    elif playerHasAce(self,player) == True:
-        #strtmp += str("É a primeira jogada, e o Jogador tem um A's na mao")
-        if dealer_value == 6 or dealer_value == 7 or dealer_value == 8 or dealer_value ==11:
-            if player_value >= 18:
-                op="s"
+        if (dealer_value < 17):  # probabilidade do dealer fazer hit na proxima jogada
+            if (dealer_value <= 10):
+                if (count > 12):
+                    count = 12;
+                prob_hit = 1.0 * (count + 1) / 13  # +1 porque o Ace é favorável neste caso
             else:
-                op="h"
+                prob_hit = 1.0 * (count) / 13
         else:
-            if player_value >= 19:
-                op="s"
-            else:
-                op="h"
+            prob_hit = 0
 
-    #SE O JOGADOR NAO TEM MAO SOFT
-    else:
-        #strtmp += str("É a primeira jogada, e o Jogador não tem um A's na mao")
-        if dealer_value == 6:
-            if player_value >= 12:
-                op="s"
+        countEstimated = 0
+        for c in self.value_cards:
+            if (c < (17 - dealer_value_estimated)):
+                countEstimated += 1
+
+        if (dealer_value_estimated < 17):  # probabilidade estimada
+            # do dealer fazer hit na proxima jogada
+            if (dealer_value_estimated <= 10):
+                if (countEstimated > 12):
+                    countEstimated = 12;
+                prob_hit_estimated = 1.0 * (countEstimated + 1) / 13  # +1 porque o Ace é favorável neste caso
             else:
-                op="h"
+                prob_hit_estimated = 1.0 * (countEstimated) / 13
         else:
-            if player_value>=17:
-                op="s"
-            else:
-                op="h"
+            prob_hit_estimated = 0
 
-    #writeFile(self,strtmp,"values.txt")
+        return [prob_dealer_bust, prob_better_hand, prob_hit,
+                prob_dealer_bust_estimated, prob_better_hand_estimated, prob_hit_estimated]
 
-    return op
 
-def firstMove(self, player, dealer, player_value, dealer_value):
-            #strtmp = readFile(self,"values.txt")
-            if(dealer_value+11 < 17):
+#-------------------------------------------- FIRST MOVE -------------------------------------------#
+    def firstMove(self, player, dealer, player_value, dealer_value):
+        #strtmp = self.readFile("values.txt")
+        if(dealer_value+11 < 17):
                 op = "s"
                 #strtmp += str("\nÉ a primeira jogada! Max_dealer_value < 17 \nOP -> s")
 
             #SE O JOGADOR TEM MAO SOFT
-            elif playerHasAce(self,player) == True:
+        elif self.playerHasAce(player) == True:
             	#strtmp += str("\nÉ a primeira jogada, e o Jogador tem um A's na mao")
             	if dealer_value == 6 or dealer_value == 7 or dealer_value == 8 or dealer_value ==11:
             		if player_value >= 18:
             			op="s"
             			#strtmp += str("\nPlayer value >= 18 e o dealer == 6, 7, 8 ou 11\nOP -> s")
-            		else: 
+            		else:
             			op="h"
             			#strtmp += str("\nPlayer value < 18 e o dealer == 6, 7, 8 ou 11\nOP -> h")
             	else:
@@ -340,7 +282,7 @@ def firstMove(self, player, dealer, player_value, dealer_value):
 
 
             #SE O JOGADOR NAO TEM MAO SOFT
-            else:
+        else:
             	#strtmp += str("É a primeira jogada, e o Jogador não tem um A's na mao")
             	if dealer_value == 6:
             		if player_value >= 12:
@@ -352,7 +294,7 @@ def firstMove(self, player, dealer, player_value, dealer_value):
             		else:
             			op="h"
             			#strtmp += str("\nPlayer value < 12 e o dealer == 6\nOP -> h")
-            	
+
             	elif (dealer_value == 7 or dealer_value == 8 or dealer_value == 9):
             		if player_value == 10 or player_value == 11:
             			op = "d"
@@ -371,57 +313,58 @@ def firstMove(self, player, dealer, player_value, dealer_value):
             			op="h"
             			#strtmp += str("\nPlayer value < 17 e o dealer > 6\nOP -> h")
 
-            #writeFile(self,strtmp,"values.txt")
+        #self.writeFile(strtmp,"values.txt")
 
-            return op
-
-def moderatePlayer(self,player,dealer,player_value,dealer_value):                           # player com atitude moderada
-
-    player_probs = player_probability(self, player)
-    player_prob_bust = player_probs[0]
-    player_prob_not_bust = 1 - player_prob_bust
-    player_prob_better_hand = player_probs[1]
-
-    dealer_probs = dealer_probability(self, dealer)
-    dealer_prob_bust = dealer_probs[0]
-    dealer_prob_not_bust = 1 - dealer_prob_bust
-    dealer_prob_better_hand = dealer_probs[1]
-    dealer_prob_hit = dealer_probs[2]
-    dealer_value_estimate = dealer_value + 6.85                                             # valor medio das cartas existentes ~ 6.85
-    dealer_prob_bust_estimated = dealer_probs[3]
-    dealer_prob_not_bust_estimated = 1 - dealer_prob_bust_estimated
-    dealer_prob_better_hand_estimated = dealer_probs[4]
-    dealer_prob_hit_estimated = dealer_probs[5]
+        return op
 
 
+#-------------------------------------------- MODERATE PLAYER -------------------------------------------#
+    def moderatePlayer(self, player, dealer, player_value, dealer_value):  # player com atitude moderada
 
-    #strtmp = readFile(self,"values.txt")
-    '''
-    strtmp += "\nPlayer_value: " + str(player_value)
-    strtmp += "\nPlayer_Bust: "  + str(player_prob_bust)
-    strtmp += "\nPlayer_NOT_BUST: " + str(player_prob_not_bust)
-    strtmp += "\nPlayer_better_hand: " + str(player_prob_better_hand)
-    #DEALER
-    strtmp += "\nDealer_value: " + str(dealer_value)
-    strtmp += "\nDealer_Bust: "  + str(dealer_prob_bust)
-    strtmp += "\nDealer_NOT_BUST: " + str(dealer_prob_not_bust)
-    strtmp += "\nDealer_better_hand: " + str(dealer_prob_better_hand)
-    strtmp += "\nDealer_prob_hit: " + str(dealer_prob_hit)
-    #DEALER ESTIMATED
-    strtmp += "\nDealer_value_estimated: " + str(dealer_value_estimate)
-    strtmp += "\nDealer_Bust_estimated: "  + str(dealer_prob_bust_estimated)
-    strtmp += "\nDealer_NOT_BUST_estimated: " + str(dealer_prob_not_bust_estimated)
-    strtmp += "\nDealer_better_hand_estimated: " + str(dealer_prob_better_hand_estimated)
-    strtmp += "\nDealer_prob_hit_estimated: " + str(dealer_prob_hit_estimated)
-'   '''
+        player_probs = self.player_probability(player)
+        player_prob_bust = player_probs[0]
+        player_prob_not_bust = 1 - player_prob_bust
+        player_prob_better_hand = player_probs[1]
 
-    if (len(dealer.hand) > self.dealer_cards):                    # valor da mao do dealer da ultima jogada
-        last_dealer_value = "hit"
-    else:
-        last_dealer_value = "stand"
-    #strtmp += "\nDealer_last_move  actual-> " +  str(len(dealer.hand)) + " passada-> " + str(self.dealer_cards) + " move-> "+last_dealer_value
-    self.dealer_cards = len(dealer.hand)
-     # Valores de probabilidades disponiveis:
+        dealer_probs = self.dealer_probability(dealer)
+        dealer_prob_bust = dealer_probs[0]
+        dealer_prob_not_bust = 1 - dealer_prob_bust
+        dealer_prob_better_hand = dealer_probs[1]
+        dealer_prob_hit = dealer_probs[2]
+        dealer_value_estimate = dealer_value + 6.85  # valor medio das cartas existentes ~ 6.85
+        dealer_prob_bust_estimated = dealer_probs[3]
+        dealer_prob_not_bust_estimated = 1 - dealer_prob_bust_estimated
+        dealer_prob_better_hand_estimated = dealer_probs[4]
+        dealer_prob_hit_estimated = dealer_probs[5]
+        '''
+        strtmp = self.readFile("values.txt")
+
+        strtmp += "\nPlayer_value: " + str(player_value)
+        strtmp += "\nPlayer_Bust: " + str(player_prob_bust)
+        strtmp += "\nPlayer_NOT_BUST: " + str(player_prob_not_bust)
+        strtmp += "\nPlayer_better_hand: " + str(player_prob_better_hand)
+        # DEALER
+        strtmp += "\nDealer_value: " + str(dealer_value)
+        strtmp += "\nDealer_Bust: " + str(dealer_prob_bust)
+        strtmp += "\nDealer_NOT_BUST: " + str(dealer_prob_not_bust)
+        strtmp += "\nDealer_better_hand: " + str(dealer_prob_better_hand)
+        strtmp += "\nDealer_prob_hit: " + str(dealer_prob_hit)
+        # DEALER ESTIMATED
+        strtmp += "\nDealer_value_estimated: " + str(dealer_value_estimate)
+        strtmp += "\nDealer_Bust_estimated: " + str(dealer_prob_bust_estimated)
+        strtmp += "\nDealer_NOT_BUST_estimated: " + str(dealer_prob_not_bust_estimated)
+        strtmp += "\nDealer_better_hand_estimated: " + str(dealer_prob_better_hand_estimated)
+        strtmp += "\nDealer_prob_hit_estimated: " + str(dealer_prob_hit_estimated)
+        '''
+        if (len(dealer.hand) > self.dealer_cards):  # valor da mao do dealer da ultima jogada
+            last_dealer_value = "hit"
+        else:
+            last_dealer_value = "stand"
+
+        #strtmp += "\nDealer_last_move  actual-> " + str(len(dealer.hand)) + " passada-> " + str(self.dealer_cards) + " move-> " + last_dealer_value
+        self.dealer_cards = len(dealer.hand)
+
+        # Valores de probabilidades disponiveis:
 
         # Player:
         # player_prob_bust          -> probabilidade do player, ao fazer hit, passar os 21 pontos
@@ -434,101 +377,152 @@ def moderatePlayer(self,player,dealer,player_value,dealer_value):               
         # dealer_prob_better_hand   -> probabilidade do dealer melhorar a sua mao tento em conta a carta oculta
         # dealer_prob_hit           -> probabilidade de dealer fazer hit na proxima jogada tendo em conta a carta oculta
 
-    op = ""
-    if(dealer_value+11 < 17):
-        op = "s"
-        #strtmp += "\nCondition: Max_dealer_value < 17"
-        self.cond = True
+        #--------------------- CONDITIONS ---------------_#
+        op = ""
 
-    elif(last_dealer_value == "stand"):                              # dealer fez stand
-        #strtmp += "\nCondition: Dealer fez stand, já tem 17 pontos"
-        if(player_value < 18):                                     # VALOR TESTADO!
+        cmd = ["h", "u"]
+        if(player_value <= 11):                         # impossivel fazer bust
             op = "h"
-        else:
+        elif(dealer_value < 6):                         # impossivel ter 17 ou mais
             op = "s"
 
-    elif(player_value >=18):                                       # VALOR TESTADO!
-        op = "s"
-        #strtmp += "\nCondition: Player_value >= 18"
 
-    #elif(dealer_prob_bust >= 0.75):
-    #    self.cond = True
-    #    op = "h"
-    #    strtmp += "\nCondition: Dealer_prob_BUST >= 0.75"
+        elif(last_dealer_value == "hit"):                   # delaer deu "hit"
+            if(self.dealerHasAce(dealer)):
+                if(player_value< 14):
+                    op = "h"
+                else:
+                    op = "s"
+            else:                                                # caso de bust impossível mas possivel 17+
+                if(dealer_value >= 6 and dealer_value <= 11):
+                    if dealer_value  == 6:
+                        op = "s"
+                    elif dealer_value < 9:
+                        op = "h"
+                    elif (dealer_value == 9 or dealer_value == 11):
+                        if player_value == 16:
+                            op = "u"
+                            self.countSurrender+=1
+                        elif player_value > 16:
+                            op = "s"
+                        else:
+                            op = "h"
+                    else:
+                        if (player_value == 16 or player_value == 15):
+                            op = "u"
+                            self.countSurrender+=1
+                        elif player_value > 16:
+                            op = "s"
+                        else:
+                            op = "h"
+                else:                                           # caso de possivel 17+ e possivel bust
+                    if(dealer_value < 15):                      # dealer value ]11;15[
+                        if(player_value <= 15):
+                            op = "h"
+                        else:
+                            op = "s"
+                    elif(dealer_value == 15):
+                        if(player_value <= 12):
+                            op = "h"
+                        else:
+                            op = "s"
+                    else:
+                        op = "s"
 
-    elif(dealer_value >= 18):
-        op = "s"
-        #strtmp += "\nCondition: dealer_value >= 18"
 
-    #------------------------------------------------------------------------------#
-    #elif(dealer_prob_bust >= 0.75):
-    #    op = "s"
-    #    strtmp += "\nCondition: Dealer_prob_BUST >= 0.8"
-    elif(dealer_value_estimate <= 21):
-        op = "h"
-        #strtmp += "\nCondition: Dealer_value_estimated <= 21"
-    elif(dealer_value_estimate >= 21):
-        op = "s"
-        #strtmp += "\nCondition: Dealer_value_estimated > 21"
-    elif(player_prob_better_hand >= 0.65):
-        op = "h"
-        #strtmp += "\nCondition: prob_Player_BH >= 0.65"
-    elif(player_value>16):
-        op = "s"
-        #strtmp += "\nCondition: Player_value > 16"
-    elif(player_value == 16):
-        #strtmp += "\nCondition: Player_value = 16"
-        if(dealer_value > 14 and dealer_prob_bust <= 0.5):
-            op = "h"
-        elif(dealer_prob_hit >= 0.5):
-            op = "h"
+        elif(last_dealer_value == "stand"):             # dealer já tem 17+
+            if(self.dealerHasAce(dealer)):
+                if(player_value < 14):
+                    op = "h"
+                elif(player_value == 4):
+                    op = cmd[random.randint(0,1)]
+                elif(player_value >= 17):
+                    op = "s"
+                else:
+                    op = "u"
+            else:
+                if(dealer_value < 9):                       # dealer tem 17 , 18 ou 19
+                    if(player_value < 17):
+                        op = "h"
+                    else:
+                        op = "s"
+                elif(dealer_value == 9 or dealer_value == 11):
+                    if(player_value < 16):
+                        op = "h"
+                    elif(player_value == 16):
+                        op = "u"
+                        self.countSurrender+=1
+                    else:
+                        op = "s"
+                elif(dealer_value == 10):
+                    if(player_value < 15):
+                        op = "h"
+                    elif(player_value < 17):
+                        op = "u"
+                        self.countSurrender+=1
+                    else:
+                        op = "s"
+                elif(dealer_value <= 14):
+                    if(player_value <= 15):
+                        op = "h"
+                    elif(player_value == 16):
+                        op = "u"
+                        self.countSurrender+=1
+                    else:
+                        op = "s"
+                elif(dealer_value == 15):
+                    if(player_value < 15):
+                        op = "h"
+                    else:
+                        op = "s"
+                else:
+                    if(player_value <= 13):
+                        op = "h"
+                    else:
+                        op = "s"
+
+
+        #strtmp += "\nOP -> " + op
+        #self.writeFile(strtmp, "values.txt")
+        return op
+
+    def playerHasAce(self,player):
+        for c in player.hand:
+            if c.is_ace():
+                return True
+        return False
+
+    def dealerHasAce(self,dealer):
+        for c in dealer.hand:
+            if c.is_ace():
+                return True
+        return False
+
+    def writeFile(self, val, fileName):  # guarda info de jogadas no ficheiro
+        fileobj = open(fileName, "w")
+        fileobj.write(str(val) + '\n')
+        fileobj.close()
+
+    def readFile(self, fileName):  # lê info de jogadas no ficheiro
+        fileobj = open(fileName, "r")
+        info = fileobj.read()
+        fileobj.close()
+        return info
+
+    def aggressivity_power(self, pocket, initial_money):  # Grau de agressividade da jogada
+        # influencia:
+        attitude = ""
+        if (pocket >= initial_money + initial_money * 0.12):  # atitude do jogador
+            attitude = "aggressive"
+        elif (pocket <= initial_money + initial_money * 0.05):  # aposta de jogada
+            attitude = "defensive"  # atitude agressiva implica aposta mais elevada
+        elif (pocket > initial_money + initial_money * 0.1 and pocket < initial_money + initial_money * 0.12):
+            attitude = "moderateUp"
+        elif (pocket > initial_money + initial_money * 0.05 and pocket <= initial_money + initial_money * 0.1):
+            attitude = "moderateDown"
         else:
-            op = "s"
-    elif(dealer_prob_bust_estimated > 0.7 and dealer_prob_bust_estimated < 0.8):
-        #strtmp += "\nCondition: Dealer_prob_bust_estimated ]0.7 , 0.8[ "
-        if(player_prob_bust >= 0.7):
-            cmd = ["h", "s"]
-            op = cmd[random.randint(0,1)]
-        elif(player_prob_bust <= 0.3):
-            op = "h"
-        else:
-            cmd = ["h","h", "h", "s"]
-            op = cmd[random.randint(0,3)]
+            attitude = "defensive"
 
-    elif(dealer_prob_bust_estimated > 0.5 and dealer_prob_bust_estimated <= 0.7):
-        #strtmp += "\nCondition: Dealer_prob_bust_estimated ]0.5 , 0.7] "
-        if(player_prob_better_hand >= 0.6):
-            op = "h"
-        elif(dealer_prob_better_hand_estimated >= 0.6):
-            op = "h"
-        else:
-            op = "s"
-    else:
-        #strtmp += "\nCondition: Dealer_prob_bust_estimated <= 0.4 "
-        if(player_prob_better_hand <= 0.40):
-            op = "s"
-        else:
-            op = "h"
-
-    #strtmp += "\nOP -> " + op
-    #writeFile(self,strtmp,"values.txt")
-    return op
-
-def aggressive_players(self,player,dealer,player_value,dealer_value):                           # player com atitude agressiva
-    return 0
-
-def defensive_player(self,player,dealer,player_value,dealer_value):                             # player com atitude defensiva
-    return 0
-
-def playerHasAce(self,player):
-	for c in player.hand:
-		if c.is_ace():
-			return True
-	return False
+        return attitude
 
 
-def playerHasAce(self,player):
-	for c in player.hand:
-		if c.is_ace():
-			return True
-	return False
