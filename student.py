@@ -87,7 +87,8 @@ class StudentPlayer(Player):
         '''
         super(StudentPlayer, self).payback(prize)
         self.dealer_cards = 0
-        '''
+
+
         print "\nWINS COUNTER = %(first)d | LOSE COUNTER = %(second)d" % {"first":self.winCount , "second":self.loseCount}
 
         if(self.cond):
@@ -97,7 +98,6 @@ class StudentPlayer(Player):
                 self.countCondLose +=1
         self.cond = False
         print "\nWIN COUNTER COND = %(first)d | LOSE COUNTER COND= %(second)d" % {"first":self.countCondWin , "second":self.countCondLose}
-        '''
 
 def player_probability(self, player):                                                       # return [prob_not_bust,prob_bust]
     value_cards = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10]                               # cards value
@@ -438,6 +438,7 @@ def moderatePlayer(self,player,dealer,player_value,dealer_value):               
     if(dealer_value+11 < 17):
         op = "s"
         #strtmp += "\nCondition: Max_dealer_value < 17"
+        self.cond = True
 
     elif(last_dealer_value == "stand"):                              # dealer fez stand
         #strtmp += "\nCondition: Dealer fez stand, já tem 17 pontos"
