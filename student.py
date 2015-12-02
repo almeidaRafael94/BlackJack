@@ -72,7 +72,10 @@ class StudentPlayer(Player):
             bet = self.minBet
         if (bet > self.maxBet):
             bet = self.maxBet
-        bet = 2
+
+        if(self.pocket > self.initial_money*4):
+            bet = self.minBet
+
         return bet
 
     def payback(self, prize):
@@ -259,59 +262,64 @@ class StudentPlayer(Player):
     def firstMove(self, player, dealer, player_value, dealer_value):
         #strtmp = self.readFile("values.txt")
         if(dealer_value+11 < 17):
+            if(player_value == 10 or player_value == 11):
+                op = "d"
+            else:
                 op = "s"
                 #strtmp += str("\nÉ a primeira jogada! Max_dealer_value < 17 \nOP -> s")
 
             #SE O JOGADOR TEM MAO SOFT
         elif self.playerHasAce(player) == True:
-            	#strtmp += str("\nÉ a primeira jogada, e o Jogador tem um A's na mao")
-            	if dealer_value == 6 or dealer_value == 7 or dealer_value == 8 or dealer_value ==11:
-            		if player_value >= 18:
-            			op="s"
-            			#strtmp += str("\nPlayer value >= 18 e o dealer == 6, 7, 8 ou 11\nOP -> s")
-            		else:
-            			op="h"
-            			#strtmp += str("\nPlayer value < 18 e o dealer == 6, 7, 8 ou 11\nOP -> h")
+            #strtmp += str("\nÉ a primeira jogada, e o Jogador tem um A's na mao")
+            if dealer_value == 6 or dealer_value == 7 or dealer_value == 8 or dealer_value ==11:
+            	if player_value >= 18:
+            		op="s"
+            		#strtmp += str("\nPlayer value >= 18 e o dealer == 6, 7, 8 ou 11\nOP -> s")
             	else:
-            		if player_value >= 19:
-            			op="s"
-            			#strtmp += str("\nPlayer value >= 19 e o dealer == 9 ou 10\nOP -> s")
-            		else:
-            			op="h"
-            			#strtmp += str("\nPlayer value < 19 e o dealer == 9 ou 10\nOP -> h")
+            		op="h"
+            		#strtmp += str("\nPlayer value < 18 e o dealer == 6, 7, 8 ou 11\nOP -> h")
+            else:
+            	if player_value >= 19:
+            		op="s"
+            		#strtmp += str("\nPlayer value >= 19 e o dealer == 9 ou 10\nOP -> s")
+            	else:
+            		op="h"
+            		#strtmp += str("\nPlayer value < 19 e o dealer == 9 ou 10\nOP -> h")
 
 
             #SE O JOGADOR NAO TEM MAO SOFT
         else:
-            	#strtmp += str("É a primeira jogada, e o Jogador não tem um A's na mao")
-            	if dealer_value == 6:
-            		if player_value >= 12:
-            			op="s"
-            			#strtmp += str("\nPlayer value >= 12 e o dealer == 6\nOP -> s")
-            		elif (player_value == 9 or player_value == 10 or player_value == 11):
-            			op = "d"
-            			#strtmp += str("\n 8 < Player value < 12 e o dealer == 6\nOP -> d")
-            		else:
-            			op="h"
-            			#strtmp += str("\nPlayer value < 12 e o dealer == 6\nOP -> h")
-
-            	elif (dealer_value == 7 or dealer_value == 8 or dealer_value == 9):
-            		if player_value == 10 or player_value == 11:
-            			op = "d"
-            			#strtmp += str("\nPlayer value == 10 ou 11 e o dealer == 7, 8 ou 9\nOP -> d")
-            		elif player_value>=17:
-            			op = "s"
-            			#strtmp += str("\nPlayer value >= 17 e o dealer == 7, 8 ou 9\nOP -> s")
-            		else:
-            			op = "h"
-            			#strtmp += str("\nPlayer value < 17, != 10 ou 11 e o dealer == 7, 8 ou 9\nOP -> h")
+            #strtmp += str("É a primeira jogada, e o Jogador não tem um A's na mao")
+            if dealer_value == 6:
+            	if player_value >= 12:
+            		op="s"
+            		#strtmp += str("\nPlayer value >= 12 e o dealer == 6\nOP -> s")
+            	elif (player_value == 9 or player_value == 10 or player_value == 11):
+            		op = "d"
+            		#strtmp += str("\n 8 < Player value < 12 e o dealer == 6\nOP -> d")
             	else:
-            		if player_value>=17:
-            			op="s"
-            			#strtmp += str("\nPlayer value >= 17 e o dealer > 6\nOP -> s")
-            		else:
-            			op="h"
-            			#strtmp += str("\nPlayer value < 17 e o dealer > 6\nOP -> h")
+            		op="h"
+            		#strtmp += str("\nPlayer value < 12 e o dealer == 6\nOP -> h")
+
+            elif (dealer_value == 7 or dealer_value == 8 or dealer_value == 9):
+            	if player_value == 10 or player_value == 11:
+            		op = "d"
+            		#strtmp += str("\nPlayer value == 10 ou 11 e o dealer == 7, 8 ou 9\nOP -> d")
+            	elif player_value>=17:
+            		op = "s"
+            		#strtmp += str("\nPlayer value >= 17 e o dealer == 7, 8 ou 9\nOP -> s")
+            	else:
+            		op = "h"
+            		#strtmp += str("\nPlayer value < 17, != 10 ou 11 e o dealer == 7, 8 ou 9\nOP -> h")
+            else:
+            	if player_value>=17:
+            		op="s"
+            		#strtmp += str("\nPlayer value >= 17 e o dealer > 6\nOP -> s")
+                elif(player_value >= 15):
+                    op = "u"
+            	else:
+            		op="h"
+            		#strtmp += str("\nPlayer value < 17 e o dealer > 6\nOP -> h")
 
         #self.writeFile(strtmp,"values.txt")
 
@@ -378,27 +386,34 @@ class StudentPlayer(Player):
         # dealer_prob_hit           -> probabilidade de dealer fazer hit na proxima jogada tendo em conta a carta oculta
 
         #--------------------- CONDITIONS ---------------_#
+
         op = ""
 
         cmd = ["h", "u"]
-        if(player_value <= 11):                         # impossivel fazer bust
-            op = "h"
-        elif(dealer_value < 6):                         # impossivel ter 17 ou mais
+        cmd1 = ["s","u"]
+
+        if(dealer_value < 6):                         # impossivel ter 17 ou mais
             op = "s"
+        elif(player_value <= 11):                         # impossivel fazer bust
+            op = "h"
 
 
         elif(last_dealer_value == "hit"):                   # delaer deu "hit"
             if(self.dealerHasAce(dealer)):
-                if(player_value< 14):
+                if(player_value< 15):
                     op = "h"
                 else:
                     op = "s"
             else:                                                # caso de bust impossível mas possivel 17+
                 if(dealer_value >= 6 and dealer_value <= 11):
                     if dealer_value  == 6:
-                        op = "s"
+                        op = self.firstMove(player,dealer,player_value,dealer_value)
+                        if op == "d":
+                            op ="h"
                     elif dealer_value < 9:
-                        op = "h"
+                        op = self.firstMove(player,dealer,player_value,dealer_value)
+                        if op == "d":
+                            op = "h"
                     elif (dealer_value == 9 or dealer_value == 11):
                         if player_value == 16:
                             op = "u"
@@ -422,13 +437,17 @@ class StudentPlayer(Player):
                         else:
                             op = "s"
                     elif(dealer_value == 15):
-                        if(player_value <= 12):
+                        if(player_value <= 13):
                             op = "h"
                         else:
                             op = "s"
-                    else:
+                    elif(dealer_value >= 18):
                         op = "s"
-
+                    else:
+                        if(player_value < 13):
+                            op = "h"
+                        else:
+                            op = "s"
 
         elif(last_dealer_value == "stand"):             # dealer já tem 17+
             if(self.dealerHasAce(dealer)):
@@ -442,10 +461,28 @@ class StudentPlayer(Player):
                     op = "u"
             else:
                 if(dealer_value < 9):                       # dealer tem 17 , 18 ou 19
-                    if(player_value < 17):
-                        op = "h"
+                    if(dealer_value == 6):
+                        if(player_value <= 14):
+                            op = "h"
+                        elif(player_value < 17):
+                            op = "u"
+                        else:
+                            op = "s"
+                    elif(dealer_value == 8):
+                        if(player_value < 14):
+                            op = "h"
+                        elif(player_value < 18):
+                            op = "u"
+                        else:
+                            op = "s"
                     else:
-                        op = "s"
+                        if(player_value < 14):
+                            op = "h"
+                        elif(player_value < 18):
+                            op = cmd1[random.randint(0,1)]
+                        else:
+                            op = "s"
+
                 elif(dealer_value == 9 or dealer_value == 11):
                     if(player_value < 16):
                         op = "h"
