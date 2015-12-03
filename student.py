@@ -23,12 +23,18 @@ class StudentPlayer(Player):
         self.firstBet = True;
         self.winCount = 0
         self.loseCount = 0
-        self.minBet = 2  # enquando não existir acesso aos valores da aposta, definir manualmente
-        self.maxBet = 50
+        self.minBet = 0
+        self.maxBet = 0
         self.countCondWin = 0
         self.countCondLose = 0
         self.cond = False
         self.countSurrender = 0
+
+        # controlo de 
+        self.banca = 0
+        self.done = False
+        self.valueToPlay = 0
+
 
     def play(self, dealer, players):
 
@@ -57,6 +63,8 @@ class StudentPlayer(Player):
 
         attitude = self.aggressivity_power(self.pocket, self.initial_money)  # apostar percentagem de popcket
 
+        #apostar percentagem de pocket
+        '''
         if (attitude == "aggressive"):
             bet = self.pocket * 0.1000
         elif (attitude == "moderateUp"):
@@ -65,16 +73,30 @@ class StudentPlayer(Player):
             bet = self.pocket * 0.0400
         else:
             bet = self.pocket * 0.0200
+        '''
+
+        #apostar percentagem de valor para jogar
+        if (attitude == "aggressive"):
+            bet = self.valueToPlay * 0.1000
+        elif (attitude == "moderateUp"):
+            bet = self.valueToPlay * 0.0600
+        elif (attitude == "moderateDown"):
+            bet = self.valueToPlay * 0.0400
+        else:
+            bet = self.valueToPlay * 0.0200
 
         bet = int(round(bet))
         # reduzir a perda caso aconteça
+        if(bet >= self.valueToPlay):        # Reduzir a probabilidade de ficar com dinheiro negativo
+            bet = self.valueToPlay
+
         if (bet < self.minBet):
             bet = self.minBet
         if (bet > self.maxBet):
             bet = self.maxBet
 
-        if(self.pocket > self.initial_money*4):
-            bet = self.minBet
+        if(bet % 2 != 0):               # garantir o retorno inteiro no caso de op = "u"
+           bet = bet +1
 
         return bet
 
@@ -94,16 +116,16 @@ class StudentPlayer(Player):
         super(StudentPlayer, self).payback(prize)
         self.dealer_cards = 0
 
-        print "\nWINS COUNTER = %(first)d | LOSE COUNTER = %(second)d" % {"first": self.winCount,
-                                                                          "second": self.loseCount}
+        #print "\nWINS COUNTER = %(first)d | LOSE COUNTER = %(second)d" % {"first": self.winCount,
+        #                                                                  "second": self.loseCount}
         if (self.cond):
             if (prize > 0):
                 self.countCondWin += 1
             elif (prize < 0):
                 self.countCondLose += 1
         self.cond = False
-        print "\nWIN COUNTER COND = %(first)d | LOSE COUNTER COND= %(second)d" % {"first": self.countCondWin,"second": self.countCondLose}
-        print "\n nr de surrenders " + str(self.countSurrender)
+        #print "\nWIN COUNTER COND = %(first)d | LOSE COUNTER COND= %(second)d" % {"first": self.countCondWin,"second": self.countCondLose}
+        #print "\n nr de surrenders " + str(self.countSurrender)
 
 #-------------------------------------------- PLAYER PROBS -------------------------------------------#
     def player_probability(self, player):  # return [prob_not_bust,prob_bust]
@@ -562,4 +584,44 @@ class StudentPlayer(Player):
 
         return attitude
 
+    def want_to_play(self, rules):   #overwrite
+        self.minBet = rules.min_bet
+        self.maxBet = rules.max_bet
+
+
+        if(self.done):                                                  # já não joga mais
+            return False
+
+        # Decidir com que valor pode jogar de forma a minimizar/anular a perda
+
+        if(self.pocket > self.initial_money):
+            print "POCKET > INICIAL"
+            if(self.valueToPlay >= self.initial_money * 1.20):
+                print "VALUE > INICIAL*1.2"
+                self.banca += self.initial_money*0.20
+                self.valueToPlay -= self.initial_money*0.20
+            elif(self.banca == 0):
+                print "VALUE <  INICIAL*1.2 , BANCA == 0"
+                self.valueToPlay = self.pocket
+            else:
+                print "VALUE <  INICIAL*1.2 , BANCA > 0"
+                if(self.pocket < self.valueToPlay):
+                    self.valueToPlay = self.pocket
+                else:
+                    self.valueToPlay = self.pocket-self.banca
+        else:
+            print "POCKET <= INICIAL"
+            if(self.banca == 0):
+                self.valueToPlay = self.pocket
+            else:
+                self.valueToPlay = self.pocket - self.banca
+
+        print "POCKET: " + str(self.pocket) + " BANCA: " + str(self.banca) + " VALUE TO PLAY: " + str(self.valueToPlay)
+
+        if(self.valueToPlay <= 0):                                      # se não tem dinheiro para apostar não joga mais
+           self.done = True
+           return False
+
+
+        return True
 

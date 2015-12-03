@@ -6,7 +6,7 @@ from student import StudentPlayer
 if __name__ == '__main__':
 
     players = [StudentPlayer("BOT_1",100),StudentPlayer("BOT_2",100),StudentPlayer("BOT_3",100),StudentPlayer("BOT_4",100)]
-    for i in range(10000):
+    for i in range(1000):
 
         print players
         
