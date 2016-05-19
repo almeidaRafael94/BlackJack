@@ -28,4 +28,3 @@ class RandomPlayer(Player):
             players - list of players state
         """
         return 1
-

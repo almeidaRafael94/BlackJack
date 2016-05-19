@@ -5,23 +5,12 @@ from student import StudentPlayer
 
 if __name__ == '__main__':
 
-    players = [StudentPlayer("BOT_1",100),StudentPlayer("BOT_2",100),StudentPlayer("BOT_3",100),StudentPlayer("BOT_4",100)]
-    for i in range(1000):
+    players = [StudentPlayer("Paulo",1000),StudentPlayer("Martins",1000),StudentPlayer("Marco",1000),StudentPlayer("Xico",1000), RandomPlayer("random",1000)]
 
+    for i in range(5000):
         print players
-        
         print "\nIteracao: " + str(i) + "\n"
-        '''
-        fileobj = open("values.txt", "r")
-        info = fileobj.read()
-        fileobj.close()
-        info += ("\nIteracao: %d"% i)
-        fileobj = open("values.txt", "w")
-        fileobj.write(str(info) + '\n')
-        fileobj.close()
-        '''
-
-        g = Game(players, min_bet= 2, max_bet=100)
+        g = Game(players, min_bet=1, max_bet=100) 
         #g = Game(players, debug=True)
         g.run()
 
